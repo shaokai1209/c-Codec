@@ -1,2 +1,2 @@
 # c-Codec
-The codes will be made available upon the public publication of the paper.
+The code will be released publicly after the paper is published.
