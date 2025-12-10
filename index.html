@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Audio Codec Samples - Different BPS</title>
-    <link rel="stylesheet" type="text/css" href="css/styles.css">
-    <script src="css/jquery-3.5.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <script src="https://unpkg.com/wavesurfer.js@6.6.3/dist/wavesurfer.min.js"></script>
     <style>
@@ -17,17 +16,27 @@
         .inlineTable { width: 100%; border-collapse: collapse; margin: 10px 0; }
         .inlineTable th, .inlineTable td { padding: 12px; text-align: center; border: 1px solid #ddd; }
         .inlineTable th { background: #f8f8f8; font-weight: bold; color: #333; }
-        .play-button-demo { background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 14px; }
+        .play-button-demo { 
+            background: #4CAF50; color: white; border: none; padding: 8px 15px; 
+            border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 14px;
+            transition: background 0.3s;
+        }
         .play-button-demo:hover { background: #45a049; }
+        .play-button-demo:disabled { background: #ccc; cursor: not-allowed; }
         [id*="waveform"] { height: 80px; margin-bottom: 5px; }
-        #global-status { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #fff; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 9999; }
+        #global-status { 
+            position: fixed; top: 20px; right: 20px; padding: 10px 20px; 
+            background: #fff; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+            z-index: 9999; min-width: 200px; text-align: center;
+        }
         .loading { color: #ff9800; }
         .success { color: #4CAF50; }
         .error { color: #f44336; }
+        .waveform-container { position: relative; }
     </style>
 </head>
 <body>
-<div id="global-status" class="loading">初始化中...</div>
+<div id="global-status" class="success">请点击播放按钮加载音频</div>
 <div class="container">
     <div id="text1">Audio Codec Samples <br/> Playback by Different BPS (640/1200/3000)</div>
     <div id="intro">
@@ -37,386 +46,198 @@
     </div>
 </div>
 
+<!-- 640bps 音频样本容器 -->
+<div class="content-container">
+    <div class="content-title">640bps Samples</div>
+    <!-- s1 样本表格 -->
+    <h3>Sample s1</h3>
+    <table class="inlineTable">
+        <thead>
+            <tr>
+                <th>Codec Type</th>
+                <th>Waveform</th>
+                <th>Playback</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Groundtruth</td>
+                <td><div class="waveform-container" id="640_s1_groundtruth"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s1_groundtruth', 'samples/640bps/s1/121_121726_000004_000003.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>Encodec</td>
+                <td><div class="waveform-container" id="640_s1_encodec"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s1_encodec', 'samples/640bps/s1/121_121726_000004_000003_encodec_640.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>HiFiCodec</td>
+                <td><div class="waveform-container" id="640_s1_hifi"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s1_hifi', 'samples/640bps/s1/121_121726_000004_000003_hifi_640.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>TiCodec</td>
+                <td><div class="waveform-container" id="640_s1_ticodec"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s1_ticodec', 'samples/640bps/s1/121_121726_000004_000003_ticodec_640.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>WavTokenizer</td>
+                <td><div class="waveform-container" id="640_s1_wavt"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s1_wavt', 'samples/640bps/s1/121_121726_000004_000003_wavt_640.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>cCodec</td>
+                <td><div class="waveform-container" id="640_s1_ccodec"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s1_ccodec', 'samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav')">加载并播放</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- s2 样本表格 -->
+    <h3>Sample s2</h3>
+    <table class="inlineTable">
+        <thead>
+            <tr>
+                <th>Codec Type</th>
+                <th>Waveform</th>
+                <th>Playback</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Groundtruth</td>
+                <td><div class="waveform-container" id="640_s2_groundtruth"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s2_groundtruth', 'samples/640bps/s2/121_121726_000005_000001.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>Encodec</td>
+                <td><div class="waveform-container" id="640_s2_encodec"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s2_encodec', 'samples/640bps/s2/121_121726_000005_000001_encodec_640.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>HiFiCodec</td>
+                <td><div class="waveform-container" id="640_s2_hifi"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s2_hifi', 'samples/640bps/s2/121_121726_000005_000001_hifi_640.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>TiCodec</td>
+                <td><div class="waveform-container" id="640_s2_ticodec"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s2_ticodec', 'samples/640bps/s2/121_121726_000005_000001_ticodec_640.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>WavTokenizer</td>
+                <td><div class="waveform-container" id="640_s2_wavt"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s2_wavt', 'samples/640bps/s2/121_121726_000005_000001_wavt_640.wav')">加载并播放</button></td>
+            </tr>
+            <tr>
+                <td>cCodec</td>
+                <td><div class="waveform-container" id="640_s2_ccodec"></div></td>
+                <td><button class="play-button-demo" onclick="loadAndPlay('640_s2_ccodec', 'samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav')">加载并播放</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 <script>
-    // 根路径：GitHub Pages 绝对路径（确保音频加载不报错）
+    // 根路径：GitHub Pages 绝对路径
     const BASE_URL = 'https://shaokai1209.github.io/c-Codec/';
-    let audioUnlocked = false; // 音频解锁标记
+    // 缓存Wavesurfer实例，避免重复创建
+    const wavesurferInstances = {};
     const statusEl = document.getElementById('global-status');
 
-    // 页面加载完成后再初始化（避免DOM未加载导致的问题）
-    window.onload = function() {
-        // 1. 音频解锁：解决浏览器自动播放限制
-        document.addEventListener('click', async () => {
-            if (!audioUnlocked) {
-                try {
-                    const tempAudio = new Audio();
-                    await tempAudio.play();
-                    tempAudio.pause();
-                    audioUnlocked = true;
-                    statusEl.textContent = '音频已解锁 ✅';
-                    statusEl.className = 'success';
-                } catch (e) {
-                    statusEl.textContent = '音频解锁失败 ❌：' + e.message;
-                    statusEl.className = 'error';
-                    console.error('音频解锁失败:', e);
-                }
-            }
-        }, { once: true });
+    /**
+     * 加载并播放音频的核心函数
+     * @param {string} containerId - 波形容器ID
+     * @param {string} audioPath - 音频相对路径
+     */
+    function loadAndPlay(containerId, audioPath) {
+        // 1. 禁用当前按钮，防止重复点击
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = '加载中...';
 
-        // 2. 创建Wavesurfer实例的通用函数（带完整监听）
-        function createWaveSurfer(elementId, audioRelativePath) {
-            const audioFullUrl = BASE_URL + audioRelativePath;
-            const wavesurfer = WaveSurfer.create({
-                container: '#' + elementId,
-                waveColor: 'violet',
-                progressColor: 'purple',
-                cursorColor: 'red',
-                barWidth: 2,
-                barRadius: 3,
-                responsive: true,
-                height: 80,
-                backend: 'WebAudio' // 强制WebAudio后端，提升兼容性
-            });
+        // 2. 拼接完整音频URL
+        const audioFullUrl = BASE_URL + audioPath;
+        statusEl.className = 'loading';
+        statusEl.textContent = `正在加载: ${audioPath}`;
 
-            // 加载音频并监听状态
-            wavesurfer.load(audioFullUrl);
-            
-            wavesurfer.on('loading', (progress) => {
-                statusEl.textContent = `加载中: ${audioRelativePath} (${progress}%)`;
-                statusEl.className = 'loading';
-            });
-
-            wavesurfer.on('ready', () => {
-                statusEl.textContent = `就绪: ${audioRelativePath}`;
-                statusEl.className = 'success';
-            });
-
-            wavesurfer.on('error', (err) => {
-                const errorMsg = `加载失败: ${audioRelativePath} - ${err}`;
-                statusEl.textContent = errorMsg;
-                statusEl.className = 'error';
-                console.error(errorMsg, audioFullUrl);
-                alert(errorMsg + '\n请检查音频文件路径是否正确！');
-            });
-
-            wavesurfer.on('play', () => {
-                statusEl.textContent = `播放中: ${audioRelativePath}`;
-                statusEl.className = 'success';
-            });
-
-            wavesurfer.on('pause', () => {
-                statusEl.textContent = `已暂停: ${audioRelativePath}`;
-                statusEl.className = 'success';
-            });
-
-            // 自定义播放/暂停方法（带权限校验）
-            wavesurfer.customPlayPause = function() {
-                if (!audioUnlocked) {
-                    alert('请先点击页面任意位置解锁音频！');
-                    return;
-                }
-                try {
-                    this.playPause();
-                } catch (e) {
-                    alert(`播放失败: ${e.message}`);
-                    console.error('播放失败:', e);
-                }
-            };
-
-            return wavesurfer;
+        // 3. 如果实例已存在，直接播放；否则创建新实例
+        if (wavesurferInstances[containerId]) {
+            const ws = wavesurferInstances[containerId];
+            ws.playPause();
+            btn.textContent = ws.isPlaying() ? '暂停' : '播放';
+            statusEl.className = 'success';
+            statusEl.textContent = ws.isPlaying() ? `播放中: ${audioPath}` : `已暂停: ${audioPath}`;
+            btn.disabled = false;
+            return;
         }
 
-        // 3. 初始化所有音频实例（640bps）
-        // s1
-        const wavesurfer_640_s1_groundtruth = createWaveSurfer('640_s1_groundtruth', 'samples/640bps/s1/121_121726_000004_000003.wav');
-        const wavesurfer_640_s1_encodec = createWaveSurfer('640_s1_encodec', 'samples/640bps/s1/121_121726_000004_000003_encodec_640.wav');
-        const wavesurfer_640_s1_hifi = createWaveSurfer('640_s1_hifi', 'samples/640bps/s1/121_121726_000004_000003_hifi_640.wav');
-        const wavesurfer_640_s1_ticodec = createWaveSurfer('640_s1_ticodec', 'samples/640bps/s1/121_121726_000004_000003_ticodec_640.wav');
-        const wavesurfer_640_s1_wavt = createWaveSurfer('640_s1_wavt', 'samples/640bps/s1/121_121726_000004_000003_wavt_640.wav');
-        const wavesurfer_640_s1_ccodec = createWaveSurfer('640_s1_ccodec', 'samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav');
+        // 4. 创建新的Wavesurfer实例
+        const ws = WaveSurfer.create({
+            container: `#${containerId}`,
+            waveColor: 'violet',
+            progressColor: 'purple',
+            cursorColor: 'red',
+            barWidth: 2,
+            barRadius: 3,
+            responsive: true,
+            height: 80,
+            backend: 'WebAudio',
+            normalize: true // 归一化波形，避免音量差异
+        });
 
-        // s2
-        const wavesurfer_640_s2_groundtruth = createWaveSurfer('640_s2_groundtruth', 'samples/640bps/s2/121_121726_000005_000001.wav');
-        const wavesurfer_640_s2_encodec = createWaveSurfer('640_s2_encodec', 'samples/640bps/s2/121_121726_000005_000001_encodec_640.wav');
-        const wavesurfer_640_s2_hifi = createWaveSurfer('640_s2_hifi', 'samples/640bps/s2/121_121726_000005_000001_hifi_640.wav');
-        const wavesurfer_640_s2_ticodec = createWaveSurfer('640_s2_ticodec', 'samples/640bps/s2/121_121726_000005_000001_ticodec_640.wav');
-        const wavesurfer_640_s2_wavt = createWaveSurfer('640_s2_wavt', 'samples/640bps/s2/121_121726_000005_000001_wavt_640.wav');
-        const wavesurfer_640_s2_ccodec = createWaveSurfer('640_s2_ccodec', 'samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav');
+        // 5. 缓存实例
+        wavesurferInstances[containerId] = ws;
 
-        // s3
-        const wavesurfer_640_s3_groundtruth = createWaveSurfer('640_s3_groundtruth', 'samples/640bps/s3/121_121726_000007_000003.wav');
-        const wavesurfer_640_s3_encodec = createWaveSurfer('640_s3_encodec', 'samples/640bps/s3/121_121726_000007_000003_encodec_640.wav');
-        const wavesurfer_640_s3_hifi = createWaveSurfer('640_s3_hifi', 'samples/640bps/s3/121_121726_000007_000003_hifi_640.wav');
-        const wavesurfer_640_s3_ticodec = createWaveSurfer('640_s3_ticodec', 'samples/640bps/s3/121_121726_000007_000003_ticodec_640.wav');
-        const wavesurfer_640_s3_wavt = createWaveSurfer('640_s3_wavt', 'samples/640bps/s3/121_121726_000007_000003_wavt_640.wav');
-        const wavesurfer_640_s3_ccodec = createWaveSurfer('640_s3_ccodec', 'samples/640bps/s3/121_121726_000007_000003_cCodec_640.wav');
+        // 6. 监听加载状态
+        ws.on('loading', (progress) => {
+            statusEl.textContent = `加载中: ${audioPath} (${Math.round(progress)}%)`;
+        });
 
-        // 4. 初始化1200bps实例（示例s1，其余按相同格式补充）
-        const wavesurfer_1200_s1_groundtruth = createWaveSurfer('1200_s1_groundtruth', 'samples/1200bps/s1/121_121726_000004_000003.wav');
-        const wavesurfer_1200_s1_encodec = createWaveSurfer('1200_s1_encodec', 'samples/1200bps/s1/121_121726_000004_000003_encodec_1200.wav');
-        const wavesurfer_1200_s1_hifi = createWaveSurfer('1200_s1_hifi', 'samples/1200bps/s1/121_121726_000004_000003_hifi_1200.wav');
-        const wavesurfer_1200_s1_ticodec = createWaveSurfer('1200_s1_ticodec', 'samples/1200bps/s1/121_121726_000004_000003_ticodec_1200.wav');
-        const wavesurfer_1200_s1_wavt = createWaveSurfer('1200_s1_wavt', 'samples/1200bps/s1/121_121726_000004_000003_wavt_1200.wav');
-        const wavesurfer_1200_s1_ccodec = createWaveSurfer('1200_s1_ccodec', 'samples/1200bps/s1/121_121726_000004_000003_cCodec_1200.wav');
+        // 7. 加载完成回调
+        ws.on('ready', () => {
+            ws.play();
+            btn.textContent = '暂停';
+            btn.disabled = false;
+            statusEl.className = 'success';
+            statusEl.textContent = `播放中: ${audioPath}`;
+        });
 
-        // 5. 初始化3000bps实例（示例s1，其余按相同格式补充）
-        const wavesurfer_3000_s1_groundtruth = createWaveSurfer('3000_s1_groundtruth', 'samples/3000bps/s1/121_121726_000004_000003.wav');
-        const wavesurfer_3000_s1_encodec = createWaveSurfer('3000_s1_encodec', 'samples/3000bps/s1/121_121726_000004_000003_encodec_3000.wav');
-        const wavesurfer_3000_s1_hifi = createWaveSurfer('3000_s1_hifi', 'samples/3000bps/s1/121_121726_000004_000003_hifi_3000.wav');
-        const wavesurfer_3000_s1_ticodec = createWaveSurfer('3000_s1_ticodec', 'samples/3000bps/s1/121_121726_000004_000003_ticodec_3000.wav');
-        const wavesurfer_3000_s1_wavt = createWaveSurfer('3000_s1_wavt', 'samples/3000bps/s1/121_121726_000004_000003_wavt_3000.wav');
-        const wavesurfer_3000_s1_ccodec = createWaveSurfer('3000_s1_ccodec', 'samples/3000bps/s1/121_121726_000004_000003_cCodec_3000.wav');
+        // 8. 播放/暂停切换
+        ws.on('play', () => {
+            btn.textContent = '暂停';
+            statusEl.className = 'success';
+            statusEl.textContent = `播放中: ${audioPath}`;
+        });
 
-        // 提示：1200bps和3000bps的s2、s3实例，按上述格式补充即可，路径替换为对应目录
-        statusEl.textContent = '初始化完成 ✅ 点击页面解锁音频';
-        statusEl.className = 'success';
+        ws.on('pause', () => {
+            btn.textContent = '播放';
+            statusEl.className = 'success';
+            statusEl.textContent = `已暂停: ${audioPath}`;
+        });
+
+        // 9. 错误处理
+        ws.on('error', (err) => {
+            const errorMsg = `加载失败: ${audioPath} - ${err}`;
+            btn.textContent = '重试';
+            btn.disabled = false;
+            statusEl.className = 'error';
+            statusEl.textContent = errorMsg;
+            console.error(errorMsg, audioFullUrl);
+            alert(errorMsg + '\n请检查音频文件路径是否正确！');
+            // 移除错误实例，避免缓存污染
+            delete wavesurferInstances[containerId];
+            ws.destroy();
+        });
+
+        // 10. 加载音频
+        ws.load(audioFullUrl);
+    }
+
+    // 页面卸载时销毁所有实例，释放资源
+    window.onbeforeunload = () => {
+        Object.values(wavesurferInstances).forEach(ws => ws.destroy());
     };
 </script>
-
-<!-- 640bps 样本表格 -->
-<div class="content-container">
-    <div class="content-title">640bps Audio Samples</div>
-    <table border="0" class="inlineTable">
-        <tr>
-            <th>Sample</th>
-            <th>Groundtruth</th>
-            <th>Encodec</th>
-            <th>HifiCodec</th>
-            <th>TiCodec</th>
-            <th>WavTokenizer</th>
-            <th>cCodec</th>
-        </tr>
-        <tr>
-            <th>s1</th>
-            <td>
-                <div id="640_s1_groundtruth"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s1_groundtruth.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s1_encodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s1_encodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s1_hifi"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s1_hifi.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s1_ticodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s1_ticodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s1_wavt"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s1_wavt.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s1_ccodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s1_ccodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-        </tr>
-        <tr>
-            <th>s2</th>
-            <td>
-                <div id="640_s2_groundtruth"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s2_groundtruth.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s2_encodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s2_encodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s2_hifi"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s2_hifi.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s2_ticodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s2_ticodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s2_wavt"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s2_wavt.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s2_ccodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s2_ccodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-        </tr>
-        <tr>
-            <th>s3</th>
-            <td>
-                <div id="640_s3_groundtruth"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s3_groundtruth.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s3_encodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s3_encodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s3_hifi"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s3_hifi.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s3_ticodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s3_ticodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s3_wavt"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s3_wavt.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="640_s3_ccodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_640_s3_ccodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-        </tr>
-    </table>
-</div>
-
-<!-- 1200bps 样本表格（示例s1，其余行按640bps格式补充） -->
-<div class="content-container">
-    <div class="content-title">1200bps Audio Samples</div>
-    <table border="0" class="inlineTable">
-        <tr>
-            <th>Sample</th>
-            <th>Groundtruth</th>
-            <th>Encodec</th>
-            <th>HifiCodec</th>
-            <th>TiCodec</th>
-            <th>WavTokenizer</th>
-            <th>cCodec</th>
-        </tr>
-        <tr>
-            <th>s1</th>
-            <td>
-                <div id="1200_s1_groundtruth"></div>
-                <button class="play-button-demo" onclick="wavesurfer_1200_s1_groundtruth.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="1200_s1_encodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_1200_s1_encodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="1200_s1_hifi"></div>
-                <button class="play-button-demo" onclick="wavesurfer_1200_s1_hifi.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="1200_s1_ticodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_1200_s1_ticodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="1200_s1_wavt"></div>
-                <button class="play-button-demo" onclick="wavesurfer_1200_s1_wavt.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="1200_s1_ccodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_1200_s1_ccodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-        </tr>
-        <!-- 补充1200bps s2、s3行，格式同640bps -->
-    </table>
-</div>
-
-<!-- 3000bps 样本表格（示例s1，其余行按640bps格式补充） -->
-<div class="content-container">
-    <div class="content-title">3000bps Audio Samples</div>
-    <table border="0" class="inlineTable">
-        <tr>
-            <th>Sample</th>
-            <th>Groundtruth</th>
-            <th>Encodec</th>
-            <th>HifiCodec</th>
-            <th>TiCodec</th>
-            <th>WavTokenizer</th>
-            <th>cCodec</th>
-        </tr>
-        <tr>
-            <th>s1</th>
-            <td>
-                <div id="3000_s1_groundtruth"></div>
-                <button class="play-button-demo" onclick="wavesurfer_3000_s1_groundtruth.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="3000_s1_encodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_3000_s1_encodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="3000_s1_hifi"></div>
-                <button class="play-button-demo" onclick="wavesurfer_3000_s1_hifi.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="3000_s1_ticodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_3000_s1_ticodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="3000_s1_wavt"></div>
-                <button class="play-button-demo" onclick="wavesurfer_3000_s1_wavt.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-            <td>
-                <div id="3000_s1_ccodec"></div>
-                <button class="play-button-demo" onclick="wavesurfer_3000_s1_ccodec.customPlayPause()">
-                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
-                </button>
-            </td>
-        </tr>
-        <!-- 补充3000bps s2、s3行，格式同640bps -->
-    </table>
-</div>
-
 </body>
 </html>
