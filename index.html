@@ -1,311 +1,749 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Audio Codec Samples - Different BPS</title>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Codec Samples - All BPS</title>
     <script src="https://unpkg.com/wavesurfer.js@6.6.3/dist/wavesurfer.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        #text1 { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px; color: #333; }
-        #intro { text-align: center; margin-bottom: 30px; color: #666; }
-        .content-container { max-width: 1200px; margin: 30px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .content-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #444; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .inlineTable { width: 100%; border-collapse: collapse; margin: 10px 0; }
-        .inlineTable th, .inlineTable td { padding: 12px; text-align: center; border: 1px solid #ddd; }
-        .inlineTable th { background: #f8f8f8; font-weight: bold; color: #333; }
-        .play-button-demo { 
-            background: #4CAF50; color: white; border: none; padding: 8px 15px; 
-            border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 14px;
-            transition: background 0.3s;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
         }
-        .play-button-demo:hover { background: #45a049; }
-        .play-button-demo:disabled { background: #ccc; cursor: not-allowed; }
-        [id*="waveform-"] { height: 80px; margin-bottom: 5px; }
-        #global-status { 
-            position: fixed; top: 20px; right: 20px; padding: 10px 20px; 
-            background: #fff; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-            z-index: 9999; min-width: 200px; text-align: center;
+
+        body {
+            background-color: #f0f2f5;
+            padding: 20px;
         }
-        .loading { color: #ff9800; }
-        .success { color: #4CAF50; }
-        .error { color: #f44336; }
-        .audio-hidden { display: none; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            gap: 25px;
+        }
+
+        .bps-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            padding: 20px;
+        }
+
+        .bps-title {
+            font-size: 22px;
+            color: #34495e;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sample-group {
+            margin-bottom: 25px;
+        }
+
+        .sample-title {
+            font-size: 18px;
+            color: #2980b9;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .codec-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .codec-table th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .codec-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .codec-name {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .waveform-container {
+            height: 80px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .play-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .play-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .play-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .play-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .status-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: #2c3e50;
+            font-size: 14px;
+            z-index: 999;
+            min-width: 220px;
+            text-align: center;
+        }
+
+        .status-success {
+            border-left: 4px solid #2ecc71;
+        }
+
+        .status-loading {
+            border-left: 4px solid #f39c12;
+        }
+
+        .status-error {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .audio-hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-<div id="global-status" class="success">就绪：点击按钮播放音频</div>
-<div class="container">
-    <div id="text1">Audio Codec Samples <br/> Playback by Different BPS (640/1200/3000)</div>
-    <div id="intro">
-        <p>Speech Codec Audio Samples - Groundtruth and Various Codec Comparisons</p>
-        <p>Supported BPS: 640bps, 1200bps, 3000bps</p>
-        <p>Codecs: groundtruth, encodec, hificodec, ticodec, wavtokenizer, cCodec</p>
+    <div class="status-bar status-success" id="global-status">
+        就绪：点击播放按钮加载音频
     </div>
-</div>
 
-<!-- 640bps 音频样本容器 -->
-<div class="content-container">
-    <div class="content-title">640bps Samples</div>
-    <!-- s1 样本表格 -->
-    <h3>Sample s1</h3>
-    <table class="inlineTable">
-        <thead>
-            <tr>
-                <th>Codec Type</th>
-                <th>Waveform</th>
-                <th>Playback</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Groundtruth -->
-            <tr>
-                <td>Groundtruth</td>
-                <td>
-                    <div id="waveform-640_s1_groundtruth"></div>
-                    <audio id="audio-640_s1_groundtruth" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s1_groundtruth')">播放</button></td>
-            </tr>
-            <!-- Encodec -->
-            <tr>
-                <td>Encodec</td>
-                <td>
-                    <div id="waveform-640_s1_encodec"></div>
-                    <audio id="audio-640_s1_encodec" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_encodec_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s1_encodec')">播放</button></td>
-            </tr>
-            <!-- HiFiCodec -->
-            <tr>
-                <td>HiFiCodec</td>
-                <td>
-                    <div id="waveform-640_s1_hifi"></div>
-                    <audio id="audio-640_s1_hifi" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_hifi_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s1_hifi')">播放</button></td>
-            </tr>
-            <!-- TiCodec -->
-            <tr>
-                <td>TiCodec</td>
-                <td>
-                    <div id="waveform-640_s1_ticodec"></div>
-                    <audio id="audio-640_s1_ticodec" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_1/121_121726_000004_000003_ticodec_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s1_ticodec')">播放</button></td>
-            </tr>
-            <!-- WavTokenizer -->
-            <tr>
-                <td>WavTokenizer</td>
-                <td>
-                    <div id="waveform-640_s1_wavt"></div>
-                    <audio id="audio-640_s1_wavt" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_wavt_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s1_wavt')">播放</button></td>
-            </tr>
-            <!-- cCodec -->
-            <tr>
-                <td>cCodec</td>
-                <td>
-                    <div id="waveform-640_s1_ccodec"></div>
-                    <audio id="audio-640_s1_ccodec" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s1_ccodec')">播放</button></td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="header">
+        <h1>Audio Codec Samples</h1>
+        <p>Playback by Different BPS (640/1200/3000) | Codecs: Groundtruth / Encodec / HiFiCodec / TiCodec / WavTokenizer / cCodec</p>
+    </div>
 
-    <!-- s2 样本表格 -->
-    <h3>Sample s2</h3>
-    <table class="inlineTable">
-        <thead>
-            <tr>
-                <th>Codec Type</th>
-                <th>Waveform</th>
-                <th>Playback</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Groundtruth -->
-            <tr>
-                <td>Groundtruth</td>
-                <td>
-                    <div id="waveform-640_s2_groundtruth"></div>
-                    <audio id="audio-640_s2_groundtruth" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s2_groundtruth')">播放</button></td>
-            </tr>
-            <!-- Encodec -->
-            <tr>
-                <td>Encodec</td>
-                <td>
-                    <div id="waveform-640_s2_encodec"></div>
-                    <audio id="audio-640_s2_encodec" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_encodec_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s2_encodec')">播放</button></td>
-            </tr>
-            <!-- HiFiCodec -->
-            <tr>
-                <td>HiFiCodec</td>
-                <td>
-                    <div id="waveform-640_s2_hifi"></div>
-                    <audio id="audio-640_s2_hifi" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_hifi_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s2_hifi')">播放</button></td>
-            </tr>
-            <!-- TiCodec -->
-            <tr>
-                <td>TiCodec</td>
-                <td>
-                    <div id="waveform-640_s2_ticodec"></div>
-                    <audio id="audio-640_s2_ticodec" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_ticodec_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s2_ticodec')">播放</button></td>
-            </tr>
-            <!-- WavTokenizer -->
-            <tr>
-                <td>WavTokenizer</td>
-                <td>
-                    <div id="waveform-640_s2_wavt"></div>
-                    <audio id="audio-640_s2_wavt" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_wavt_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s2_wavt')">播放</button></td>
-            </tr>
-            <!-- cCodec -->
-            <tr>
-                <td>cCodec</td>
-                <td>
-                    <div id="waveform-640_s2_ccodec"></div>
-                    <audio id="audio-640_s2_ccodec" class="audio-hidden" preload="none">
-                        <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav" type="audio/wav">
-                    
-                </td>
-                <td><button class="play-button-demo" onclick="togglePlay('640_s2_ccodec')">播放</button></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+    <div class="container">
+        <!-- 640bps 模块 -->
+        <div class="bps-section">
+            <div class="bps-title">640bps Samples</div>
 
-<script>
-    // 缓存Wavesurfer实例
-    const wsInstances = {};
-    const statusEl = document.getElementById('global-status');
-    let currentPlayingId = null; // 记录当前播放的音频ID，实现互斥播放
+            <!-- s1 样本 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s1</div>
+                <table class="codec-table">
+                    <thead>
+                        <tr>
+                            <th>Codec Type</th>
+                            <th>Waveform</th>
+                            <th>Playback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="codec-name">Groundtruth</td>
+                            <td class="waveform-container" id="wf-640-s1-gt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s1-gt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s1-gt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">Encodec</td>
+                            <td class="waveform-container" id="wf-640-s1-encodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s1-encodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_encodec_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s1-encodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec</td>
+                            <td class="waveform-container" id="wf-640-s1-hifi"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s1-hifi" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_hifi_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s1-hifi')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec</td>
+                            <td class="waveform-container" id="wf-640-s1-ticodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s1-ticodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_ticodec_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s1-ticodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer</td>
+                            <td class="waveform-container" id="wf-640-s1-wavt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s1-wavt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_wavt_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s1-wavt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec</td>
+                            <td class="waveform-container" id="wf-640-s1-ccodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s1-ccodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s1-ccodec')">播放</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    /**
-     * 初始化Wavesurfer实例（挂载到已有audio元素）
-     * @param {string} id - 唯一标识（如640_s1_groundtruth）
-     */
-    function initWs(id) {
-        if (wsInstances[id]) return wsInstances[id];
+            <!-- s2 样本 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s2</div>
+                <table class="codec-table">
+                    <thead>
+                        <tr>
+                            <th>Codec Type</th>
+                            <th>Waveform</th>
+                            <th>Playback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="codec-name">Groundtruth</td>
+                            <td class="waveform-container" id="wf-640-s2-gt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s2-gt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s2-gt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">Encodec</td>
+                            <td class="waveform-container" id="wf-640-s2-encodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s2-encodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_encodec_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s2-encodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec</td>
+                            <td class="waveform-container" id="wf-640-s2-hifi"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s2-hifi" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_hifi_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s2-hifi')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec</td>
+                            <td class="waveform-container" id="wf-640-s2-ticodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s2-ticodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_ticodec_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s2-ticodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer</td>
+                            <td class="waveform-container" id="wf-640-s2-wavt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s2-wavt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_wavt_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s2-wavt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec</td>
+                            <td class="waveform-container" id="wf-640-s2-ccodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-640-s2-ccodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('640-s2-ccodec')">播放</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        const audioEl = document.getElementById(`audio-${id}`);
-        const ws = WaveSurfer.create({
-            container: `#waveform-${id}`,
-            waveColor: 'violet',
-            progressColor: 'purple',
-            cursorColor: 'red',
-            barWidth: 2,
-            barRadius: 3,
-            height: 80,
-            backend: 'MediaElement', // 改用MediaElement后端，兼容更好
-            mediaElement: audioEl,   // 挂载到原生audio元素
-            normalize: true
-        });
+        <!-- 1200bps 模块 -->
+        <div class="bps-section">
+            <div class="bps-title">1200bps Samples</div>
 
-        // 监听音频加载状态
-        audioEl.addEventListener('loadeddata', () => {
-            statusEl.className = 'success';
-            statusEl.textContent = `音频就绪: ${id}`;
-        });
+            <!-- s1 样本 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s1</div>
+                <table class="codec-table">
+                    <thead>
+                        <tr>
+                            <th>Codec Type</th>
+                            <th>Waveform</th>
+                            <th>Playback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="codec-name">Groundtruth</td>
+                            <td class="waveform-container" id="wf-1200-s1-gt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s1-gt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s1-gt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">Encodec</td>
+                            <td class="waveform-container" id="wf-1200-s1-encodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s1-encodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_encodec_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s1-encodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec</td>
+                            <td class="waveform-container" id="wf-1200-s1-hifi"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s1-hifi" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_hifi_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s1-hifi')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec</td>
+                            <td class="waveform-container" id="wf-1200-s1-ticodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s1-ticodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_ticodec_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s1-ticodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer</td>
+                            <td class="waveform-container" id="wf-1200-s1-wavt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s1-wavt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_wavt_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s1-wavt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec</td>
+                            <td class="waveform-container" id="wf-1200-s1-ccodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s1-ccodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_cCodec_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s1-ccodec')">播放</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-        // 监听音频错误
-        audioEl.addEventListener('error', (e) => {
-            const errMsg = `音频加载失败: ${e.target.error.message}`;
-            statusEl.className = 'error';
-            statusEl.textContent = errMsg;
-            alert(errMsg);
-        });
+            <!-- s2 样本 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s2</div>
+                <table class="codec-table">
+                    <thead>
+                        <tr>
+                            <th>Codec Type</th>
+                            <th>Waveform</th>
+                            <th>Playback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="codec-name">Groundtruth</td>
+                            <td class="waveform-container" id="wf-1200-s2-gt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s2-gt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s2-gt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">Encodec</td>
+                            <td class="waveform-container" id="wf-1200-s2-encodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s2-encodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_encodec_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s2-encodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec</td>
+                            <td class="waveform-container" id="wf-1200-s2-hifi"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s2-hifi" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_hifi_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s2-hifi')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec</td>
+                            <td class="waveform-container" id="wf-1200-s2-ticodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s2-ticodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_ticodec_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s2-ticodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer</td>
+                            <td class="waveform-container" id="wf-1200-s2-wavt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s2-wavt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_wavt_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s2-wavt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec</td>
+                            <td class="waveform-container" id="wf-1200-s2-ccodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-1200-s2-ccodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_cCodec_1200.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('1200-s2-ccodec')">播放</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        wsInstances[id] = ws;
-        return ws;
-    }
+        <!-- 3000bps 模块 -->
+        <div class="bps-section">
+            <div class="bps-title">3000bps Samples</div>
 
-    /**
-     * 播放/暂停切换（互斥播放：同一时间只播放一个音频）
-     * @param {string} id - 唯一标识
-     */
-    function togglePlay(id) {
-        const btn = event.target;
-        const audioEl = document.getElementById(`audio-${id}`);
-        const ws = initWs(id);
+            <!-- s1 样本 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s1</div>
+                <table class="codec-table">
+                    <thead>
+                        <tr>
+                            <th>Codec Type</th>
+                            <th>Waveform</th>
+                            <th>Playback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="codec-name">Groundtruth</td>
+                            <td class="waveform-container" id="wf-3000-s1-gt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s1-gt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s1-gt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">Encodec</td>
+                            <td class="waveform-container" id="wf-3000-s1-encodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s1-encodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_encodec_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s1-encodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec</td>
+                            <td class="waveform-container" id="wf-3000-s1-hifi"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s1-hifi" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_hifi_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s1-hifi')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec</td>
+                            <td class="waveform-container" id="wf-3000-s1-ticodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s1-ticodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_ticodec_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s1-ticodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer</td>
+                            <td class="waveform-container" id="wf-3000-s1-wavt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s1-wavt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_wavt_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s1-wavt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec</td>
+                            <td class="waveform-container" id="wf-3000-s1-ccodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s1-ccodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_cCodec_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s1-ccodec')">播放</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-        // 1. 如果当前有音频在播放，先暂停
-        if (currentPlayingId && currentPlayingId !== id) {
-            const currentAudio = document.getElementById(`audio-${currentPlayingId}`);
-            const currentWs = wsInstances[currentPlayingId];
-            const currentBtn = document.querySelector(`button[onclick="togglePlay('${currentPlayingId}')"]`);
+            <!-- s2 样本 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s2</div>
+                <table class="codec-table">
+                    <thead>
+                        <tr>
+                            <th>Codec Type</th>
+                            <th>Waveform</th>
+                            <th>Playback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="codec-name">Groundtruth</td>
+                            <td class="waveform-container" id="wf-3000-s2-gt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s2-gt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s2-gt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">Encodec</td>
+                            <td class="waveform-container" id="wf-3000-s2-encodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s2-encodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_encodec_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s2-encodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec</td>
+                            <td class="waveform-container" id="wf-3000-s2-hifi"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s2-hifi" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_hifi_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s2-hifi')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec</td>
+                            <td class="waveform-container" id="wf-3000-s2-ticodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s2-ticodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_ticodec_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s2-ticodec')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer</td>
+                            <td class="waveform-container" id="wf-3000-s2-wavt"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s2-wavt" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_wavt_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s2-wavt')">播放</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec</td>
+                            <td class="waveform-container" id="wf-3000-s2-ccodec"></td>
+                            <td class="play-controls">
+                                <audio id="audio-3000-s2-ccodec" class="audio-hidden">
+                                    <source src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_cCodec_3000.wav" type="audio/wav">
+                                
+                                <button class="play-btn" onclick="playAudio('3000-s2-ccodec')">播放</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 缓存Wavesurfer实例
+        const wsCache = {};
+        // 当前播放的音频ID
+        let currentAudioId = null;
+        const statusEl = document.getElementById('global-status');
+
+        /**
+         * 初始化波形实例
+         * @param {string} id - 唯一标识（如640-s1-gt）
+         */
+        function initWaveform(id) {
+            if (wsCache[id]) return wsCache[id];
             
-            currentAudio.pause();
-            currentWs.pause();
-            currentBtn.textContent = '播放';
-        }
-
-        // 2. 切换当前音频状态
-        if (audioEl.paused) {
-            // 开始播放
-            audioEl.play().then(() => {
-                ws.play();
-                btn.textContent = '暂停';
-                statusEl.className = 'success';
-                statusEl.textContent = `播放中: ${id}`;
-                currentPlayingId = id;
-            }).catch((e) => {
-                statusEl.className = 'error';
-                statusEl.textContent = `播放失败: ${e.message}`;
-                alert(`播放失败: ${e.message}\n请检查浏览器音频权限`);
+            const ws = WaveSurfer.create({
+                container: `#wf-${id}`,
+                waveColor: '#3498db',
+                progressColor: '#2980b9',
+                cursorColor: '#e74c3c',
+                barWidth: 2,
+                barRadius: 3,
+                height: 80,
+                backend: 'MediaElement',
+                normalize: true,
+                responsive: true
             });
-        } else {
-            // 暂停播放
-            audioEl.pause();
-            ws.pause();
-            btn.textContent = '播放';
-            statusEl.className = 'success';
-            statusEl.textContent = `已暂停: ${id}`;
-            currentPlayingId = null;
-        }
-    }
 
-    // 页面卸载时清理资源
-    window.onbeforeunload = () => {
-        Object.values(wsInstances).forEach(ws => ws.destroy());
-        document.querySelectorAll('audio').forEach(audio => audio.pause());
-    };
-</script>
+            // 绑定音频元素
+            const audioEl = document.getElementById(`audio-${id}`);
+            ws.setMediaElement(audioEl);
+
+            // 监听加载完成
+            audioEl.addEventListener('loadeddata', () => {
+                statusEl.className = 'status-bar status-success';
+                statusEl.textContent = `音频就绪: ${id}`;
+            });
+
+            // 监听错误
+            audioEl.addEventListener('error', (e) => {
+                statusEl.className = 'status-bar status-error';
+                statusEl.textContent = `加载失败: ${e.target.error.message}`;
+            });
+
+            wsCache[id] = ws;
+            return ws;
+        }
+
+        /**
+         * 播放/暂停音频
+         * @param {string} id - 唯一标识
+         */
+        function playAudio(id) {
+            const btn = event.target;
+            const audioEl = document.getElementById(`audio-${id}`);
+            const ws = initWaveform(id);
+
+            // 暂停当前播放的其他音频
+            if (currentAudioId && currentAudioId !== id) {
+                const prevAudio = document.getElementById(`audio-${currentAudioId}`);
+                const prevBtn = document.querySelector(`button[onclick="playAudio('${currentAudioId}')"]`);
+                const prevWs = wsCache[currentAudioId];
+                
+                prevAudio.pause();
+                prevBtn.textContent = '播放';
+                prevWs.pause();
+            }
+
+            // 切换当前音频状态
+            if (audioEl.paused) {
+                btn.disabled = true;
+                btn.textContent = '加载中...';
+                
+                audioEl.play()
+                    .then(() => {
+                        ws.play();
+                        btn.textContent = '暂停';
+                        btn.disabled = false;
+                        statusEl.className = 'status-bar status-success';
+                        statusEl.textContent = `播放中: ${id}`;
+                        currentAudioId = id;
+                    })
+                    .catch((err) => {
+                        btn.textContent = '播放';
+                        btn.disabled = false;
+                        statusEl.className = 'status-bar status-error';
+                        statusEl.textContent = `播放失败: ${err.message}`;
+                        alert(`播放失败: ${err.message}\n请确保已允许音频播放`);
+                    });
+            } else {
+                audioEl.pause();
+                ws.pause();
+                btn.textContent = '播放';
+                statusEl.className = 'status-bar status-success';
+                statusEl.textContent = `已暂停: ${id}`;
+                currentAudioId = null;
+            }
+        }
+
+        // 页面卸载时清理资源
+        window.addEventListener('beforeunload', () => {
+            Object.values(wsCache).forEach(ws => ws.destroy());
+            document.querySelectorAll('audio').forEach(audio => audio.pause());
+        });
+    </script>
 </body>
 </html>
-
