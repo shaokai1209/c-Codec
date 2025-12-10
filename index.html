@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>语音样本展示</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .audio-cell {
+      min-width: 150px;
+    }
+    .play-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .play-btn:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h2>Neutral-to-Lombard Conversion Demo</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>Conversion Type</th>
+        <th>Original</th>
+        <th>Target</th>
+        <th>FreeVC_speaker</th>
+        <th>LombardTokenizer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Normal to Very Loud</td>
+        <td class="audio-cell">
+          <button class="play-btn" data-audio="samples/normal.wav">
+            ▶ 播放原始
+          </button>
+        </td>
+        <td class="audio-cell">
+          <button class="play-btn" data-audio="samples/loud.wav">
+            ▶ 播放目标
+          </button>
+        </td>
+        <td class="audio-cell">
+          <button class="play-btn" data-audio="samples/freevc.wav">
+            ▶ 播放结果
+          </button>
+        </td>
+        <td class="audio-cell">
+          <button class="play-btn" data-audio="samples/lombard.wav">
+            ▶ 播放结果
+          </button>
+        </td>
+      </tr>
+      <!-- 更多行... -->
+    </tbody>
+  </table>
+
+  <!-- 进度显示 -->
+  <div id="current-playing" style="margin-top: 20px; display: none;">
+    正在播放: <span id="current-file"></span>
+    <progress id="audio-progress" value="0" max="100"></progress>
+  </div>
+
+  <script>
+    let currentAudio = null;
+    
+    // 为所有播放按钮添加事件监听
+    document.querySelectorAll('.play-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const audioFile = this.getAttribute('data-audio');
+        playAudio(audioFile, this.textContent);
+      });
+    });
+    
+    function playAudio(url, description) {
+      // 停止当前播放的音频
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+      
+      // 创建新的Audio对象
+      currentAudio = new Audio(url);
+      
+      // 更新显示
+      document.getElementById('current-file').textContent = description;
+      document.getElementById('current-playing').style.display = 'block';
+      
+      // 更新进度
+      currentAudio.addEventListener('timeupdate', function() {
+        const progress = (this.currentTime / this.duration) * 100 || 0;
+        document.getElementById('audio-progress').value = progress;
+      });
+      
+      // 播放完成后的处理
+      currentAudio.addEventListener('ended', function() {
+        document.getElementById('current-playing').style.display = 'none';
+      });
+      
+      // 开始播放
+      currentAudio.play().catch(e => {
+        console.error('播放失败:', e);
+        alert('无法播放音频，请检查文件路径');
+      });
+    }
+    
+    // 暂停所有音频（当页面隐藏时）
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden && currentAudio) {
+        currentAudio.pause();
+      }
+    });
+  </script>
+</body>
+</html>
