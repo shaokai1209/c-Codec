@@ -38,89 +38,142 @@
 </div>
 
 <script>
-    // 核心修复：1. 定义Raw路径 2. 全局音频解锁标记 3. 状态反馈
-    const RAW_BASE_URL = 'https://raw.githubusercontent.com/shaokai1209/c-Codec/main/';
-    let audioUnlocked = false; // 标记音频是否被用户交互解锁
+    // 根路径：GitHub Pages 绝对路径（确保音频加载不报错）
+    const BASE_URL = 'https://shaokai1209.github.io/c-Codec/';
+    let audioUnlocked = false; // 音频解锁标记
     const statusEl = document.getElementById('global-status');
 
-    // 修复1：用户点击页面任意位置解锁音频（解决浏览器自动播放策略）
-    document.addEventListener('click', async () => {
-        if (!audioUnlocked) {
-            try {
-                // 创建空音频实例触发解锁
-                const tempAudio = new Audio();
-                await tempAudio.play();
-                tempAudio.pause();
-                audioUnlocked = true;
-                statusEl.textContent = '音频已解锁 ✅';
-                statusEl.className = 'success';
-            } catch (e) {
-                statusEl.textContent = '音频解锁失败 ❌';
-                statusEl.className = 'error';
-                console.error('音频解锁失败:', e);
-            }
-        }
-    }, { once: true });
-
-    // 修复2：重构Wavesurfer创建函数（增加加载状态+错误处理）
-    function createWaveSurfer(elementId, audioRelativePath) {
-        const audioFullUrl = RAW_BASE_URL + audioRelativePath;
-        const wavesurfer = WaveSurfer.create({
-            container: '#' + elementId,
-            waveColor: 'violet',
-            progressColor: 'purple',
-            cursorColor: 'red',
-            barWidth: 2,
-            barRadius: 3,
-            responsive: true,
-            height: 80,
-            backend: 'WebAudio' // 强制使用WebAudio后端（修复播放无响应）
-        });
-
-        // 加载音频+监听状态
-        wavesurfer.load(audioFullUrl);
-        wavesurfer.on('loading', (progress) => {
-            statusEl.textContent = `加载中: ${audioRelativePath} (${progress}%)`;
-            statusEl.className = 'loading';
-        });
-        wavesurfer.on('ready', () => {
-            statusEl.textContent = `就绪: ${audioRelativePath}`;
-            statusEl.className = 'success';
-        });
-        wavesurfer.on('error', (err) => {
-            statusEl.textContent = `失败: ${audioRelativePath} - ${err}`;
-            statusEl.className = 'error';
-            console.error(`Wavesurfer错误 [${elementId}]:`, err, audioFullUrl);
-            alert(`音频加载失败:\n${audioRelativePath}\n错误: ${err}\n请检查文件路径是否正确`);
-        });
-        wavesurfer.on('play', () => {
-            statusEl.textContent = `播放中: ${audioRelativePath}`;
-            statusEl.className = 'success';
-        });
-        wavesurfer.on('pause', () => {
-            statusEl.textContent = `已暂停: ${audioRelativePath}`;
-            statusEl.className = 'success';
-        });
-
-        // 修复3：手动绑定播放/暂停方法（防止作用域丢失）
-        wavesurfer.customPlayPause = function() {
+    // 页面加载完成后再初始化（避免DOM未加载导致的问题）
+    window.onload = function() {
+        // 1. 音频解锁：解决浏览器自动播放限制
+        document.addEventListener('click', async () => {
             if (!audioUnlocked) {
-                alert('请先点击页面任意位置解锁音频！');
-                return;
+                try {
+                    const tempAudio = new Audio();
+                    await tempAudio.play();
+                    tempAudio.pause();
+                    audioUnlocked = true;
+                    statusEl.textContent = '音频已解锁 ✅';
+                    statusEl.className = 'success';
+                } catch (e) {
+                    statusEl.textContent = '音频解锁失败 ❌：' + e.message;
+                    statusEl.className = 'error';
+                    console.error('音频解锁失败:', e);
+                }
             }
-            try {
-                this.playPause();
-            } catch (e) {
-                alert(`播放失败: ${e.message}`);
-                console.error('播放失败:', e);
-            }
-        };
+        }, { once: true });
 
-        return wavesurfer;
-    }
+        // 2. 创建Wavesurfer实例的通用函数（带完整监听）
+        function createWaveSurfer(elementId, audioRelativePath) {
+            const audioFullUrl = BASE_URL + audioRelativePath;
+            const wavesurfer = WaveSurfer.create({
+                container: '#' + elementId,
+                waveColor: 'violet',
+                progressColor: 'purple',
+                cursorColor: 'red',
+                barWidth: 2,
+                barRadius: 3,
+                responsive: true,
+                height: 80,
+                backend: 'WebAudio' // 强制WebAudio后端，提升兼容性
+            });
+
+            // 加载音频并监听状态
+            wavesurfer.load(audioFullUrl);
+            
+            wavesurfer.on('loading', (progress) => {
+                statusEl.textContent = `加载中: ${audioRelativePath} (${progress}%)`;
+                statusEl.className = 'loading';
+            });
+
+            wavesurfer.on('ready', () => {
+                statusEl.textContent = `就绪: ${audioRelativePath}`;
+                statusEl.className = 'success';
+            });
+
+            wavesurfer.on('error', (err) => {
+                const errorMsg = `加载失败: ${audioRelativePath} - ${err}`;
+                statusEl.textContent = errorMsg;
+                statusEl.className = 'error';
+                console.error(errorMsg, audioFullUrl);
+                alert(errorMsg + '\n请检查音频文件路径是否正确！');
+            });
+
+            wavesurfer.on('play', () => {
+                statusEl.textContent = `播放中: ${audioRelativePath}`;
+                statusEl.className = 'success';
+            });
+
+            wavesurfer.on('pause', () => {
+                statusEl.textContent = `已暂停: ${audioRelativePath}`;
+                statusEl.className = 'success';
+            });
+
+            // 自定义播放/暂停方法（带权限校验）
+            wavesurfer.customPlayPause = function() {
+                if (!audioUnlocked) {
+                    alert('请先点击页面任意位置解锁音频！');
+                    return;
+                }
+                try {
+                    this.playPause();
+                } catch (e) {
+                    alert(`播放失败: ${e.message}`);
+                    console.error('播放失败:', e);
+                }
+            };
+
+            return wavesurfer;
+        }
+
+        // 3. 初始化所有音频实例（640bps）
+        // s1
+        const wavesurfer_640_s1_groundtruth = createWaveSurfer('640_s1_groundtruth', 'samples/640bps/s1/121_121726_000004_000003.wav');
+        const wavesurfer_640_s1_encodec = createWaveSurfer('640_s1_encodec', 'samples/640bps/s1/121_121726_000004_000003_encodec_640.wav');
+        const wavesurfer_640_s1_hifi = createWaveSurfer('640_s1_hifi', 'samples/640bps/s1/121_121726_000004_000003_hifi_640.wav');
+        const wavesurfer_640_s1_ticodec = createWaveSurfer('640_s1_ticodec', 'samples/640bps/s1/121_121726_000004_000003_ticodec_640.wav');
+        const wavesurfer_640_s1_wavt = createWaveSurfer('640_s1_wavt', 'samples/640bps/s1/121_121726_000004_000003_wavt_640.wav');
+        const wavesurfer_640_s1_ccodec = createWaveSurfer('640_s1_ccodec', 'samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav');
+
+        // s2
+        const wavesurfer_640_s2_groundtruth = createWaveSurfer('640_s2_groundtruth', 'samples/640bps/s2/121_121726_000005_000001.wav');
+        const wavesurfer_640_s2_encodec = createWaveSurfer('640_s2_encodec', 'samples/640bps/s2/121_121726_000005_000001_encodec_640.wav');
+        const wavesurfer_640_s2_hifi = createWaveSurfer('640_s2_hifi', 'samples/640bps/s2/121_121726_000005_000001_hifi_640.wav');
+        const wavesurfer_640_s2_ticodec = createWaveSurfer('640_s2_ticodec', 'samples/640bps/s2/121_121726_000005_000001_ticodec_640.wav');
+        const wavesurfer_640_s2_wavt = createWaveSurfer('640_s2_wavt', 'samples/640bps/s2/121_121726_000005_000001_wavt_640.wav');
+        const wavesurfer_640_s2_ccodec = createWaveSurfer('640_s2_ccodec', 'samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav');
+
+        // s3
+        const wavesurfer_640_s3_groundtruth = createWaveSurfer('640_s3_groundtruth', 'samples/640bps/s3/121_121726_000007_000003.wav');
+        const wavesurfer_640_s3_encodec = createWaveSurfer('640_s3_encodec', 'samples/640bps/s3/121_121726_000007_000003_encodec_640.wav');
+        const wavesurfer_640_s3_hifi = createWaveSurfer('640_s3_hifi', 'samples/640bps/s3/121_121726_000007_000003_hifi_640.wav');
+        const wavesurfer_640_s3_ticodec = createWaveSurfer('640_s3_ticodec', 'samples/640bps/s3/121_121726_000007_000003_ticodec_640.wav');
+        const wavesurfer_640_s3_wavt = createWaveSurfer('640_s3_wavt', 'samples/640bps/s3/121_121726_000007_000003_wavt_640.wav');
+        const wavesurfer_640_s3_ccodec = createWaveSurfer('640_s3_ccodec', 'samples/640bps/s3/121_121726_000007_000003_cCodec_640.wav');
+
+        // 4. 初始化1200bps实例（示例s1，其余按相同格式补充）
+        const wavesurfer_1200_s1_groundtruth = createWaveSurfer('1200_s1_groundtruth', 'samples/1200bps/s1/121_121726_000004_000003.wav');
+        const wavesurfer_1200_s1_encodec = createWaveSurfer('1200_s1_encodec', 'samples/1200bps/s1/121_121726_000004_000003_encodec_1200.wav');
+        const wavesurfer_1200_s1_hifi = createWaveSurfer('1200_s1_hifi', 'samples/1200bps/s1/121_121726_000004_000003_hifi_1200.wav');
+        const wavesurfer_1200_s1_ticodec = createWaveSurfer('1200_s1_ticodec', 'samples/1200bps/s1/121_121726_000004_000003_ticodec_1200.wav');
+        const wavesurfer_1200_s1_wavt = createWaveSurfer('1200_s1_wavt', 'samples/1200bps/s1/121_121726_000004_000003_wavt_1200.wav');
+        const wavesurfer_1200_s1_ccodec = createWaveSurfer('1200_s1_ccodec', 'samples/1200bps/s1/121_121726_000004_000003_cCodec_1200.wav');
+
+        // 5. 初始化3000bps实例（示例s1，其余按相同格式补充）
+        const wavesurfer_3000_s1_groundtruth = createWaveSurfer('3000_s1_groundtruth', 'samples/3000bps/s1/121_121726_000004_000003.wav');
+        const wavesurfer_3000_s1_encodec = createWaveSurfer('3000_s1_encodec', 'samples/3000bps/s1/121_121726_000004_000003_encodec_3000.wav');
+        const wavesurfer_3000_s1_hifi = createWaveSurfer('3000_s1_hifi', 'samples/3000bps/s1/121_121726_000004_000003_hifi_3000.wav');
+        const wavesurfer_3000_s1_ticodec = createWaveSurfer('3000_s1_ticodec', 'samples/3000bps/s1/121_121726_000004_000003_ticodec_3000.wav');
+        const wavesurfer_3000_s1_wavt = createWaveSurfer('3000_s1_wavt', 'samples/3000bps/s1/121_121726_000004_000003_wavt_3000.wav');
+        const wavesurfer_3000_s1_ccodec = createWaveSurfer('3000_s1_ccodec', 'samples/3000bps/s1/121_121726_000004_000003_cCodec_3000.wav');
+
+        // 提示：1200bps和3000bps的s2、s3实例，按上述格式补充即可，路径替换为对应目录
+        statusEl.textContent = '初始化完成 ✅ 点击页面解锁音频';
+        statusEl.className = 'success';
+    };
 </script>
 
-<!-- 640bps 样本 -->
+<!-- 640bps 样本表格 -->
 <div class="content-container">
     <div class="content-title">640bps Audio Samples</div>
     <table border="0" class="inlineTable">
@@ -140,45 +193,38 @@
                 <button class="play-button-demo" onclick="wavesurfer_640_s1_groundtruth.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s1_groundtruth = createWaveSurfer('640_s1_groundtruth', 'samples/640bps/s1/121_121726_000004_000003.wav');</script>
             </td>
             <td>
                 <div id="640_s1_encodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s1_encodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s1_encodec = createWaveSurfer('640_s1_encodec', 'samples/640bps/s1/121_121726_000004_000003_encodec_640.wav');</script>
             </td>
             <td>
                 <div id="640_s1_hifi"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s1_hifi.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s1_hifi = createWaveSurfer('640_s1_hifi', 'samples/640bps/s1/121_121726_000004_000003_hifi_640.wav');</script>
             </td>
             <td>
                 <div id="640_s1_ticodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s1_ticodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s1_ticodec = createWaveSurfer('640_s1_ticodec', 'samples/640bps/s1/121_121726_000004_000003_ticodec_640.wav');</script>
             </td>
             <td>
                 <div id="640_s1_wavt"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s1_wavt.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s1_wavt = createWaveSurfer('640_s1_wavt', 'samples/640bps/s1/121_121726_000004_000003_wavt_640.wav');</script>
             </td>
             <td>
                 <div id="640_s1_ccodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s1_ccodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s1_ccodec = createWaveSurfer('640_s1_ccodec', 'samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav');</script>
             </td>
         </tr>
-        <!-- 其他s2/s3行保持不变，仅将onclick改为customPlayPause() -->
         <tr>
             <th>s2</th>
             <td>
@@ -186,42 +232,36 @@
                 <button class="play-button-demo" onclick="wavesurfer_640_s2_groundtruth.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s2_groundtruth = createWaveSurfer('640_s2_groundtruth', 'samples/640bps/s2/121_121726_000005_000001.wav');</script>
             </td>
             <td>
                 <div id="640_s2_encodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s2_encodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s2_encodec = createWaveSurfer('640_s2_encodec', 'samples/640bps/s2/121_121726_000005_000001_encodec_640.wav');</script>
             </td>
             <td>
                 <div id="640_s2_hifi"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s2_hifi.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s2_hifi = createWaveSurfer('640_s2_hifi', 'samples/640bps/s2/121_121726_000005_000001_hifi_640.wav');</script>
             </td>
             <td>
                 <div id="640_s2_ticodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s2_ticodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s2_ticodec = createWaveSurfer('640_s2_ticodec', 'samples/640bps/s2/121_121726_000005_000001_ticodec_640.wav');</script>
             </td>
             <td>
                 <div id="640_s2_wavt"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s2_wavt.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s2_wavt = createWaveSurfer('640_s2_wavt', 'samples/640bps/s2/121_121726_000005_000001_wavt_640.wav');</script>
             </td>
             <td>
                 <div id="640_s2_ccodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s2_ccodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s2_ccodec = createWaveSurfer('640_s2_ccodec', 'samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav');</script>
             </td>
         </tr>
         <tr>
@@ -231,51 +271,42 @@
                 <button class="play-button-demo" onclick="wavesurfer_640_s3_groundtruth.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s3_groundtruth = createWaveSurfer('640_s3_groundtruth', 'samples/640bps/s3/121_121726_000007_000003.wav');</script>
             </td>
             <td>
                 <div id="640_s3_encodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s3_encodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s3_encodec = createWaveSurfer('640_s3_encodec', 'samples/640bps/s3/121_121726_000007_000003_encodec_640.wav');</script>
             </td>
             <td>
                 <div id="640_s3_hifi"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s3_hifi.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s3_hifi = createWaveSurfer('640_s3_hifi', 'samples/640bps/s3/121_121726_000007_000003_hifi_640.wav');</script>
             </td>
             <td>
                 <div id="640_s3_ticodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s3_ticodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s3_ticodec = createWaveSurfer('640_s3_ticodec', 'samples/640bps/s3/121_121726_000007_000003_ticodec_640.wav');</script>
             </td>
             <td>
                 <div id="640_s3_wavt"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s3_wavt.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s3_wavt = createWaveSurfer('640_s3_wavt', 'samples/640bps/s3/121_121726_000007_000003_wavt_640.wav');</script>
             </td>
             <td>
                 <div id="640_s3_ccodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_640_s3_ccodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_640_s3_ccodec = createWaveSurfer('640_s3_ccodec', 'samples/640bps/s3/121_121726_000007_000003_cCodec_640.wav');</script>
             </td>
         </tr>
     </table>
 </div>
 
-<!-- 1200bps/3000bps 部分按同样规则修改：
-     1. onclick改为 customPlayPause()
-     2. 保留createWaveSurfer调用逻辑
-     以下仅展示1200bps s1示例，其余行/区块同理 -->
+<!-- 1200bps 样本表格（示例s1，其余行按640bps格式补充） -->
 <div class="content-container">
     <div class="content-title">1200bps Audio Samples</div>
     <table border="0" class="inlineTable">
@@ -295,49 +326,97 @@
                 <button class="play-button-demo" onclick="wavesurfer_1200_s1_groundtruth.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_1200_s1_groundtruth = createWaveSurfer('1200_s1_groundtruth', 'samples/1200bps/s1/121_121726_000004_000003.wav');</script>
             </td>
             <td>
                 <div id="1200_s1_encodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_1200_s1_encodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_1200_s1_encodec = createWaveSurfer('1200_s1_encodec', 'samples/1200bps/s1/121_121726_000004_000003_encodec_1200.wav');</script>
             </td>
             <td>
                 <div id="1200_s1_hifi"></div>
                 <button class="play-button-demo" onclick="wavesurfer_1200_s1_hifi.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_1200_s1_hifi = createWaveSurfer('1200_s1_hifi', 'samples/1200bps/s1/121_121726_000004_000003_hifi_1200.wav');</script>
             </td>
             <td>
                 <div id="1200_s1_ticodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_1200_s1_ticodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_1200_s1_ticodec = createWaveSurfer('1200_s1_ticodec', 'samples/1200bps/s1/121_121726_000004_000003_ticodec_1200.wav');</script>
             </td>
             <td>
                 <div id="1200_s1_wavt"></div>
                 <button class="play-button-demo" onclick="wavesurfer_1200_s1_wavt.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_1200_s1_wavt = createWaveSurfer('1200_s1_wavt', 'samples/1200bps/s1/121_121726_000004_000003_wavt_1200.wav');</script>
             </td>
             <td>
                 <div id="1200_s1_ccodec"></div>
                 <button class="play-button-demo" onclick="wavesurfer_1200_s1_ccodec.customPlayPause()">
                     <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
                 </button>
-                <script>var wavesurfer_1200_s1_ccodec = createWaveSurfer('1200_s1_ccodec', 'samples/1200bps/s1/121_121726_000004_000003_cCodec_1200.wav');</script>
             </td>
         </tr>
-        <!-- 1200bps s2/s3、3000bps 所有行按上述规则修改，替换onclick为customPlayPause() -->
+        <!-- 补充1200bps s2、s3行，格式同640bps -->
     </table>
 </div>
 
-<!-- 3000bps 区块同理，此处省略重复代码，按1200bps规则修改即可 -->
+<!-- 3000bps 样本表格（示例s1，其余行按640bps格式补充） -->
+<div class="content-container">
+    <div class="content-title">3000bps Audio Samples</div>
+    <table border="0" class="inlineTable">
+        <tr>
+            <th>Sample</th>
+            <th>Groundtruth</th>
+            <th>Encodec</th>
+            <th>HifiCodec</th>
+            <th>TiCodec</th>
+            <th>WavTokenizer</th>
+            <th>cCodec</th>
+        </tr>
+        <tr>
+            <th>s1</th>
+            <td>
+                <div id="3000_s1_groundtruth"></div>
+                <button class="play-button-demo" onclick="wavesurfer_3000_s1_groundtruth.customPlayPause()">
+                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
+                </button>
+            </td>
+            <td>
+                <div id="3000_s1_encodec"></div>
+                <button class="play-button-demo" onclick="wavesurfer_3000_s1_encodec.customPlayPause()">
+                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
+                </button>
+            </td>
+            <td>
+                <div id="3000_s1_hifi"></div>
+                <button class="play-button-demo" onclick="wavesurfer_3000_s1_hifi.customPlayPause()">
+                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
+                </button>
+            </td>
+            <td>
+                <div id="3000_s1_ticodec"></div>
+                <button class="play-button-demo" onclick="wavesurfer_3000_s1_ticodec.customPlayPause()">
+                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
+                </button>
+            </td>
+            <td>
+                <div id="3000_s1_wavt"></div>
+                <button class="play-button-demo" onclick="wavesurfer_3000_s1_wavt.customPlayPause()">
+                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
+                </button>
+            </td>
+            <td>
+                <div id="3000_s1_ccodec"></div>
+                <button class="play-button-demo" onclick="wavesurfer_3000_s1_ccodec.customPlayPause()">
+                    <i class="fa fa-play"></i> Play / <i class="fa fa-pause"></i> Pause
+                </button>
+            </td>
+        </tr>
+        <!-- 补充3000bps s2、s3行，格式同640bps -->
+    </table>
+</div>
 
 </body>
 </html>
