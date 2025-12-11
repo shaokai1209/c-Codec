@@ -1,2 +1,4 @@
-#cCodec
-<a href='https://shaokai1209.github.io/c-Codec/index.html'><img src='https://img.shields.io/badge/Audio-Samples-Green'></a>
+<a href='https://shaokai1209.github.io/c-Codec/index.html'><img src='https://img.shields.io/badge/Demo-Page-Green'></a>
+
+
+All source code will be organized and made publicly available upon the publication of the paper.
