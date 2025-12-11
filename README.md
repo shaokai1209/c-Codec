@@ -1,6 +1,4 @@
-### 🔍 Online Demo
-Speech codec demo:
-
+### 🔍 Online Demo:
 <a href='https://shaokai1209.github.io/c-Codec/index.html' target="_blank">
   <img src='https://img.shields.io/badge/Demo-Page-Green?style=for-the-badge&logo=github&logoColor=white' alt='Demo Page'/>
 </a>
