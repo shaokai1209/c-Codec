@@ -1,7 +1,4 @@
-### :wave: Hi, we’d like to invite you to listen to our demo.
-<a href='https://shaokai1209.github.io/c-Codec/index.html' target='_blank'>
-  <img src='https://img.shields.io/badge/🎧_Audio_Demo-1DB954?style=for-the-badge' alt='Audio Demo'/>
-</a>
+### :wave: Hi, we’d like to invite you to listen to our demo. <a href='https://shaokai1209.github.io/c-Codec/index.html' target='_blank'><img src='https://img.shields.io/badge/🎧_Audio_Demo-1DB954?style=for-the-badge' alt='Audio Demo'/></a>
 
 
 :stuck_out_tongue_winking_eye: The codes will be organized and made publicly available upon the publication of the paper.
