@@ -183,7 +183,7 @@
             letter-spacing: 0.3px;
         }
 
-        /* 音频播放器容器 - 核心修改 */
+        /* 音频播放器容器 */
         .audio-container {
             position: relative;
             width: 100%;
@@ -192,7 +192,7 @@
             margin: 0 auto;
         }
 
-        /* 隐藏原生播放按钮，但保留其他控件 */
+        /* 隐藏原生播放按钮 */
         audio {
             width: 100%;
             height: 40px;
@@ -1006,7 +1006,7 @@
                     button.classList.add('paused');
                 });
                 
-                // 监听音频暂停事件（比如用户拖动进度条到末尾）
+                // 监听音频暂停事件
                 audio.addEventListener('pause', function() {
                     if (audio.currentTime === audio.duration) return;
                     button.classList.remove('playing');
