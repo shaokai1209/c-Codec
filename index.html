@@ -3,515 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Novel Conditional Codec with Timbre-Aware Tokens for Very Low-Bitrate Speech Coding</title>
+    <title>cCodec Audio Demo | Very Low-Bitrate Speech Coding</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
         }
 
         body {
-            background: #f5f7fa;
-            padding: 20px;
+            background: linear-gradient(145deg, #f0f5fa 0%, #e6edf5 100%);
+            padding: 30px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
+        .container {
+            max-width: 1300px;
+            width: 100%;
+        }
+
+        /* 头部卡片 */
         .header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 40px;
+            padding: 30px 25px;
+            margin-bottom: 40px;
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 25px 40px -15px rgba(0, 40, 80, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.6);
         }
 
         .header h1 {
-            color: #2d3748;
-            font-size: 24px;
-            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e2f5a, #2b4b8f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            line-height: 1.3;
         }
 
         .header p {
-            color: #718096;
-            font-size: 16px;
+            font-size: 18px;
+            color: #2c3e50;
+            margin: 8px 0;
         }
 
+        .header .codec-badge {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 12px 25px;
+            border-radius: 60px;
+            display: inline-block;
+            font-size: 16px;
+            color: #1e2f5a;
+            font-weight: 500;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        /* 比特率区块 */
         .bps-section {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 25px;
-            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 40px;
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 15px 30px -10px rgba(0, 30, 60, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.7);
         }
 
         .bps-title {
-            color: #2d3748;
-            font-size: 20px;
-            border-bottom: 2px solid #4299e1;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid;
+            border-image: linear-gradient(90deg, #4a90e2, #a58bf5, #f2a0c0) 1;
+            border-bottom-style: solid;
+            border-bottom-width: 3px;
+            border-image-slice: 1;
+            color: #1a2b4a;
         }
 
+        .bps-title::before {
+            content: "🎵";
+            font-size: 32px;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
+        }
+
+        /* 样本组卡片 */
         .sample-group {
-            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 28px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px -5px rgba(0, 20, 40, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .sample-group:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 30px -12px rgba(66, 153, 225, 0.25);
         }
 
         .sample-title {
-            color: #e53e3e;
-            font-size: 18px;
-            margin-bottom: 15px;
-            padding-left: 10px;
-            border-left: 3px solid #4299e1;
+            font-size: 17px;
+            font-weight: 600;
+            color: #1e2f5a;
+            margin-bottom: 20px;
+            padding-left: 18px;
+            position: relative;
         }
 
+        .sample-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            bottom: 4px;
+            width: 6px;
+            background: linear-gradient(180deg, #4a90e2, #a58bf5);
+            border-radius: 6px;
+        }
+
+        /* 表格样式 */
         .codec-table {
             width: 100%;
             border-collapse: collapse;
+            border-radius: 20px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 6px 14px rgba(0, 20, 40, 0.05);
         }
 
         .codec-table th {
-            background: #4299e1;
+            background: #2b4b8f;
             color: white;
-            padding: 12px;
-            text-align: center;
+            font-weight: 600;
             font-size: 16px;
+            padding: 16px 12px;
+            text-align: center;
+        }
+
+        .codec-table th:first-child {
+            width: 22%;
+        }
+        .codec-table th:last-child {
+            width: 78%;
         }
 
         .codec-table td {
-            padding: 15px;
+            padding: 14px 12px;
             text-align: center;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e9edf2;
             font-size: 16px;
+            background: white;
+        }
+
+        .codec-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .codec-table tr:hover td {
+            background: #f5f9ff;
         }
 
         .codec-name {
             font-weight: 600;
-            color: #2d3748;
+            color: #1e2f5a;
+            letter-spacing: 0.3px;
         }
 
         audio {
             width: 100%;
-            max-width: 300px;
+            max-width: 350px;
+            height: 40px;
+            border-radius: 30px;
             outline: none;
         }
 
-        /* 响应式适配 */
-        @media (max-width: 768px) {
-            .codec-table td {
-                padding: 10px 5px;
-            }
+        /* 自定义音频控件颜色 */
+        audio::-webkit-media-controls-panel {
+            background: #f1f5fb;
+            border-radius: 30px;
+        }
+        audio::-webkit-media-controls-play-button {
+            background: #4a90e2;
+            border-radius: 50%;
+        }
 
-            audio {
-                max-width: 200px;
-            }
+        /* 响应式 */
+        @media (max-width: 700px) {
+            .codec-table th:first-child { width: 30%; }
+            .codec-table th:last-child { width: 70%; }
+            .bps-section { padding: 20px; }
+        }
+        @media (max-width: 550px) {
+            .codec-table td { display: block; width: 100%; text-align: left; }
+            .codec-table tr { display: block; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 16px; }
+            .codec-table td { border-bottom: 1px solid #edf2f7; }
+            .codec-table td:first-child { font-weight: 700; background: #f8fafd; }
+        }
+
+        /* 装饰波浪 */
+        .wave-bg {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none"><path fill="%23ffffff40" fill-opacity="0.3" d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,208C960,213,1056,203,1152,186.7C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"/></svg>');
+            background-repeat: repeat-x;
+            background-size: cover;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.5;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>A Novel Conditional Codec with Timbre-Aware Tokens for Very Low-Bitrate Speech Coding</h1>
-        <p>Audio Demo (640~/ 1200~/ 3000~ bps)</p>
-        <p>Encodec(TMLR, 2022) / HiFiCodec(arXiv, 2023) / TiCodec(ICASSP, 2024) / WavTokenizer(ICLR, 2025) / DualCodec(INTERSPEECH, 2025) / cCodec(the proposed, 2026)</p>
-    </div>
-
-    <!-- 640bps 模块 -->
-    <div class="bps-section">
-        <div class="bps-title">640~ bps Samples</div>
-
-        <!-- s1 样本 -->
-        <div class="sample-group">
-            <div class="sample-title">Sample s1 (Also, a popular contrivance whereby love-making may be suspended but not stopped during the picnic season.)</div>
-            <table class="codec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Codec Type</th>
-                        <th style="width: 80%;">Playback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="codec-name">GroundTruth</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">EnCodec(750bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_encodec_750.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">HiFiCodec(700bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_hifi_700.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">TiCodec(700bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_ticodec_700.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">WavTokenizer(720bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_wavt_640.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">DualCodec(750bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_dualcodec_750.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">cCodec(640bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav"></td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="wave-bg"></div>
+    <div class="container">
+        <div class="header">
+            <h1>A Novel Conditional Codec with Timbre-Aware Tokens for Very Low-Bitrate Speech Coding</h1>
+            <p>🎧 Audio Demo (640 / 1200 / 3000 bps)  ·  proposed cCodec (2026)</p>
+            <div class="codec-badge">
+                Encodec (TMLR,2022) · HiFiCodec (arXiv,2023) · TiCodec (ICASSP,2024) · WavTokenizer (ICLR,2025) · DualCodec (INTERSPEECH,2025) · <strong>cCodec</strong>
+            </div>
         </div>
 
-        <!-- s2 样本 -->
-        <div class="sample-group">
-            <div class="sample-title">Sample s2 (The beggar's plea, the politician's sceptre and the drummer's ablest assistant.)</div>
-            <table class="codec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Codec Type</th>
-                        <th style="width: 80%;">Playback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="codec-name">GroundTruth</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">EnCodec(750bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_encodec_750.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">HiFiCodec(700bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_hifi_700.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">TiCodec(700bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_ticodec_700.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">WavTokenizer(720bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_wavt_640.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">DualCodec(750bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_dualcodec_750.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">cCodec(640bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav"></td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- 640bps 样本区块（包含 s1, s2, s3）-->
+        <div class="bps-section">
+            <div class="bps-title">640 bps Samples</div>
+
+            <!-- s1 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s1: “Also, a popular contrivance whereby love-making may be suspended but not stopped during the picnic season.”</div>
+                <table class="codec-table">
+                    <thead>
+                        <tr><th>Codec Type</th><th>Playback</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003.wav"></audio></td></tr>
+                        <tr><td class="codec-name">EnCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_encodec_750.wav"></audio></td></tr>
+                        <tr><td class="codec-name">HiFiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_hifi_700.wav"></audio></td></tr>
+                        <tr><td class="codec-name">TiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_ticodec_700.wav"></audio></td></tr>
+                        <tr><td class="codec-name">WavTokenizer (720bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_wavt_640.wav"></audio></td></tr>
+                        <tr><td class="codec-name">DualCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_dualcodec_750.wav"></audio></td></tr>
+                        <tr><td class="codec-name">cCodec (640bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav"></audio></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- s2 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s2: “The beggar's plea, the politician's sceptre and the drummer's ablest assistant.”</div>
+                <table class="codec-table">
+                    <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
+                    <tbody>
+                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001.wav"></audio></td></tr>
+                        <tr><td class="codec-name">EnCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_encodec_750.wav"></audio></td></tr>
+                        <tr><td class="codec-name">HiFiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_hifi_700.wav"></audio></td></tr>
+                        <tr><td class="codec-name">TiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_ticodec_700.wav"></audio></td></tr>
+                        <tr><td class="codec-name">WavTokenizer (720bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_wavt_640.wav"></audio></td></tr>
+                        <tr><td class="codec-name">DualCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_dualcodec_750.wav"></audio></td></tr>
+                        <tr><td class="codec-name">cCodec (640bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav"></audio></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- s3 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s3: “Painful to hear.”</div>
+                <table class="codec-table">
+                    <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
+                    <tbody>
+                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003.wav"></audio></td></tr>
+                        <tr><td class="codec-name">EnCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_encodec_750.wav"></audio></td></tr>
+                        <tr><td class="codec-name">HiFiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_hifi_700.wav"></audio></td></tr>
+                        <tr><td class="codec-name">TiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_ticodec_700.wav"></audio></td></tr>
+                        <tr><td class="codec-name">WavTokenizer (720bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_wavt_640.wav"></audio></td></tr>
+                        <tr><td class="codec-name">DualCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_dualcodec_750.wav"></audio></td></tr>
+                        <tr><td class="codec-name">cCodec (640bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_cCodec_640.wav"></audio></td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- s3 样本 -->
-        <div class="sample-group">
-            <div class="sample-title">Sample s3 (Painful to hear.)</div>
-            <table class="codec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Codec Type</th>
-                        <th style="width: 80%;">Playback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="codec-name">GroundTruth</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">EnCodec(750bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_encodec_750.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">HiFiCodec(700bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_hifi_700.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">TiCodec(700bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_ticodec_700.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">WavTokenizer(720bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_wavt_640.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">DualCodec(750bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_dualcodec_750.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">cCodec(640bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_cCodec_640.wav"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <!-- 1200bps 样本区块 -->
+        <div class="bps-section">
+            <div class="bps-title">1200 bps Samples</div>
 
-    <!-- 1200bps 模块 -->
-    <div class="bps-section">
-        <div class="bps-title">1200~ bps Samples</div>
+            <!-- s1 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s1: “Also, a popular contrivance whereby love-making may be suspended but not stopped during the picnic season.”</div>
+                <table class="codec-table">
+                    <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
+                    <tbody>
+                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003.wav"></audio></td></tr>
+                        <tr><td class="codec-name">EnCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_encodec_1500.wav"></audio></td></tr>
+                        <tr><td class="codec-name">HiFiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_hifi_1400.wav"></audio></td></tr>
+                        <tr><td class="codec-name">TiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_ticodec_1400.wav"></audio></td></tr>
+                        <tr><td class="codec-name">WavTokenizer (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_wavt_1200.wav"></audio></td></tr>
+                        <tr><td class="codec-name">DualCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_dualcodec_1500.wav"></audio></td></tr>
+                        <tr><td class="codec-name">cCodec (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_opt_1200bps.wav"></audio></td></tr>
+                    </tbody>
+                </table>
+            </div>
 
-        <!-- s1 样本 -->
-        <div class="sample-group">
-            <div class="sample-title">Sample s1 (Also, a popular contrivance whereby love-making may be suspended but not stopped during the picnic season.)</div>
-            <table class="codec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Codec Type</th>
-                        <th style="width: 80%;">Playback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="codec-name">GroundTruth</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">EnCodec(1500bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_encodec_1500.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">HiFiCodec(1400bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_hifi_1400.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">TiCodec(1400bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_ticodec_1400.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">WavTokenizer(1200bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_wavt_1200.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">DualCodec(1500bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_dualcodec_1500.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">cCodec(1200bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_opt_1200bps.wav"></td>
-                    </tr>
-                </tbody>
-            </table>
+            <!-- s2 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s2: “The beggar's plea, the politician's sceptre and the drummer's ablest assistant.”</div>
+                <table class="codec-table">
+                    <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
+                    <tbody>
+                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001.wav"></audio></td></tr>
+                        <tr><td class="codec-name">EnCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_encodec_1500.wav"></audio></td></tr>
+                        <tr><td class="codec-name">HiFiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_hifi_1400.wav"></audio></td></tr>
+                        <tr><td class="codec-name">TiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_ticodec_1400.wav"></audio></td></tr>
+                        <tr><td class="codec-name">WavTokenizer (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_wavt_1200.wav"></audio></td></tr>
+                        <tr><td class="codec-name">DualCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_dualcodec_1500.wav"></audio></td></tr>
+                        <tr><td class="codec-name">cCodec (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_opt_1200bps.wav"></audio></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- s3 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s3: “Painful to hear.”</div>
+                <table class="codec-table">
+                    <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
+                    <tbody>
+                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003.wav"></audio></td></tr>
+                        <tr><td class="codec-name">EnCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_encodec_1500.wav"></audio></td></tr>
+                        <tr><td class="codec-name">HiFiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_hifi_1400.wav"></audio></td></tr>
+                        <tr><td class="codec-name">TiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_ticodec_1400.wav"></audio></td></tr>
+                        <tr><td class="codec-name">WavTokenizer (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_wavt_1200.wav"></audio></td></tr>
+                        <tr><td class="codec-name">DualCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_dualcodec_1500.wav"></audio></td></tr>
+                        <tr><td class="codec-name">cCodec (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_opt_1200bps.wav"></audio></td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- s2 样本 -->
-        <div class="sample-group">
-            <div class="sample-title">Sample s2 (The beggar's plea, the politician's sceptre and the drummer's ablest assistant.)</div>
-            <table class="codec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Codec Type</th>
-                        <th style="width: 80%;">Playback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="codec-name">GroundTruth</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">EnCodec(1500bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_encodec_1500.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">HiFiCodec(1400bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_hifi_1400.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">TiCodec(1400bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_ticodec_1400.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">WavTokenizer(1200bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_wavt_1200.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">DualCodec(1500bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_dualcodec_1500.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">cCodec(1200bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_opt_1200bps.wav"></td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- 3000bps 样本区块 -->
+        <div class="bps-section">
+            <div class="bps-title">3000 bps Samples</div>
+
+            <!-- s1 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s1: “Also, a popular contrivance whereby love-making may be suspended but not stopped during the picnic season.”</div>
+                <table class="codec-table">
+                    <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
+                    <tbody>
+                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003.wav"></audio></td></tr>
+                        <tr><td class="codec-name">EnCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_encodec_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">HiFiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_hifi_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">TiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_ticodec_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">WavTokenizer (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_wavt_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">DualCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_dualcodec_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">cCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_cCodec_3000.wav"></audio></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- s2 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s2: “The beggar's plea, the politician's sceptre and the drummer's ablest assistant.”</div>
+                <table class="codec-table">
+                    <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
+                    <tbody>
+                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001.wav"></audio></td></tr>
+                        <tr><td class="codec-name">EnCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_encodec_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">HiFiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_hifi_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">TiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_ticodec_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">WavTokenizer (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_wavt_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">DualCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_dualcodec_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">cCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_cCodec_3000.wav"></audio></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- s3 -->
+            <div class="sample-group">
+                <div class="sample-title">Sample s3: “Painful to hear.”</div>
+                <table class="codec-table">
+                    <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
+                    <tbody>
+                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003.wav"></audio></td></tr>
+                        <tr><td class="codec-name">EnCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_encodec_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">HiFiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_hifi_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">TiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_ticodec_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">WavTokenizer (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_wavt_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">DualCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_dualcodec_3000.wav"></audio></td></tr>
+                        <tr><td class="codec-name">cCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_cCodec_3000.wav"></audio></td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- s3 样本 -->
-        <div class="sample-group">
-            <div class="sample-title">Sample s3 (Painful to hear.)</div>
-            <table class="codec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Codec Type</th>
-                        <th style="width: 80%;">Playback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="codec-name">GroundTruth</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">EnCodec(1500bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_encodec_1500.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">HiFiCodec(1400bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_hifi_1400.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">TiCodec(1400bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_ticodec_1400.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">WavTokenizer(1200bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_wavt_1200.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">DualCodec(1500bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_dualcodec_1500.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">cCodec(1200bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_opt_1200bps.wav"></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div style="text-align: center; margin: 30px 0 10px; color: #4a5568; opacity: 0.7;">
+            ⚡ cCodec · Very Low-Bitrate Speech Coding · 2026
         </div>
     </div>
-
-    <!-- 3000bps 模块 -->
-    <div class="bps-section">
-        <div class="bps-title">3000bps Samples</div>
-
-        <!-- s1 样本 -->
-        <div class="sample-group">
-            <div class="sample-title">Sample s1 (Also, a popular contrivance whereby love-making may be suspended but not stopped during the picnic season.)</div>
-            <table class="codec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Codec Type</th>
-                        <th style="width: 80%;">Playback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="codec-name">GroundTruth</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">EnCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_encodec_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">HiFiCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_hifi_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">TiCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_ticodec_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">WavTokenizer(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_wavt_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">DualCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_dualcodec_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">cCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_cCodec_3000.wav"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- s2 样本 -->
-        <div class="sample-group">
-            <div class="sample-title">Sample s2 (The beggar's plea, the politician's sceptre and the drummer's ablest assistant.)</div>
-            <table class="codec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Codec Type</th>
-                        <th style="width: 80%;">Playback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="codec-name">GroundTruth</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">EnCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_encodec_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">HiFiCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_hifi_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">TiCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_ticodec_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">WavTokenizer(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_wavt_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">DualCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_dualcodec_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">cCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_cCodec_3000.wav"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- s3 样本 -->
-        <div class="sample-group">
-            <div class="sample-title">Sample s3 (Painful to hear.)</div>
-            <table class="codec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">Codec Type</th>
-                        <th style="width: 80%;">Playback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="codec-name">GroundTruth</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">EnCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_encodec_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">HiFiCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_hifi_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">TiCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_ticodec_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">WavTokenizer(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_wavt_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">DualCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_dualcodec_3000.wav"></td>
-                    </tr>
-                    <tr>
-                        <td class="codec-name">cCodec(3000bps)</td>
-                        <td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_cCodec_3000.wav"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+</body>
+</html>
