@@ -183,22 +183,72 @@
             letter-spacing: 0.3px;
         }
 
-        audio {
+        /* 音频播放器容器 - 核心修改 */
+        .audio-container {
+            position: relative;
             width: 100%;
             max-width: 350px;
             height: 40px;
-            border-radius: 30px;
-            outline: none;
+            margin: 0 auto;
         }
 
-        /* 自定义音频控件颜色 */
+        /* 隐藏原生播放按钮，但保留其他控件 */
+        audio {
+            width: 100%;
+            height: 40px;
+            border-radius: 30px;
+            outline: none;
+            /* 隐藏原生播放按钮 */
+            --webkit-media-controls-play-button-display: none;
+        }
+
+        audio::-webkit-media-controls-play-button {
+            display: none !important;
+        }
+
         audio::-webkit-media-controls-panel {
             background: #f1f5fb;
             border-radius: 30px;
+            border: none;
+            padding-left: 40px; /* 为自定义按钮留出空间 */
         }
-        audio::-webkit-media-controls-play-button {
-            background: #4a90e2;
+
+        /* 自定义播放/暂停按钮 */
+        .custom-play-btn {
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
+            background-color: #4a90e2;
+            border: none;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+
+        .custom-play-btn:hover {
+            background-color: #357abd;
+        }
+
+        .custom-play-btn.paused::after {
+            content: '▶';
+            font-size: 12px;
+            margin-left: 2px;
+        }
+
+        .custom-play-btn.playing::after {
+            content: '❚❚';
+            font-size: 10px;
+            letter-spacing: 1px;
         }
 
         /* 响应式 */
@@ -212,6 +262,7 @@
             .codec-table tr { display: block; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 16px; }
             .codec-table td { border-bottom: 1px solid #edf2f7; }
             .codec-table td:first-child { font-weight: 700; background: #f8fafd; }
+            .audio-container { max-width: 100%; }
         }
 
         /* 装饰波浪 */
@@ -253,13 +304,69 @@
                         <tr><th>Codec Type</th><th>Playback</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003.wav"></audio></td></tr>
-                        <tr><td class="codec-name">EnCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_encodec_750.wav"></audio></td></tr>
-                        <tr><td class="codec-name">HiFiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_hifi_700.wav"></audio></td></tr>
-                        <tr><td class="codec-name">TiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_ticodec_700.wav"></audio></td></tr>
-                        <tr><td class="codec-name">WavTokenizer (720bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_wavt_640.wav"></audio></td></tr>
-                        <tr><td class="codec-name">DualCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_dualcodec_750.wav"></audio></td></tr>
-                        <tr><td class="codec-name">cCodec (640bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav"></audio></td></tr>
+                        <tr>
+                            <td class="codec-name">GroundTruth</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio1"></button>
+                                    <audio id="audio1" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">EnCodec (750bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio2"></button>
+                                    <audio id="audio2" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_encodec_750.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec (700bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio3"></button>
+                                    <audio id="audio3" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_hifi_700.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec (700bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio4"></button>
+                                    <audio id="audio4" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_ticodec_700.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer (720bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio5"></button>
+                                    <audio id="audio5" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_wavt_640.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">DualCodec (750bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio6"></button>
+                                    <audio id="audio6" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_dualcodec_750.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec (640bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio7"></button>
+                                    <audio id="audio7" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s1/121_121726_000004_000003_cCodec_640.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -270,13 +377,69 @@
                 <table class="codec-table">
                     <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
                     <tbody>
-                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001.wav"></audio></td></tr>
-                        <tr><td class="codec-name">EnCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_encodec_750.wav"></audio></td></tr>
-                        <tr><td class="codec-name">HiFiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_hifi_700.wav"></audio></td></tr>
-                        <tr><td class="codec-name">TiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_ticodec_700.wav"></audio></td></tr>
-                        <tr><td class="codec-name">WavTokenizer (720bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_wavt_640.wav"></audio></td></tr>
-                        <tr><td class="codec-name">DualCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_dualcodec_750.wav"></audio></td></tr>
-                        <tr><td class="codec-name">cCodec (640bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav"></audio></td></tr>
+                        <tr>
+                            <td class="codec-name">GroundTruth</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio8"></button>
+                                    <audio id="audio8" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">EnCodec (750bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio9"></button>
+                                    <audio id="audio9" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_encodec_750.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec (700bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio10"></button>
+                                    <audio id="audio10" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_hifi_700.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec (700bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio11"></button>
+                                    <audio id="audio11" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_ticodec_700.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer (720bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio12"></button>
+                                    <audio id="audio12" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_wavt_640.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">DualCodec (750bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio13"></button>
+                                    <audio id="audio13" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_dualcodec_750.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec (640bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio14"></button>
+                                    <audio id="audio14" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s2/121_121726_000005_000001_cCodec_640.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -287,13 +450,69 @@
                 <table class="codec-table">
                     <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
                     <tbody>
-                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003.wav"></audio></td></tr>
-                        <tr><td class="codec-name">EnCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_encodec_750.wav"></audio></td></tr>
-                        <tr><td class="codec-name">HiFiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_hifi_700.wav"></audio></td></tr>
-                        <tr><td class="codec-name">TiCodec (700bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_ticodec_700.wav"></audio></td></tr>
-                        <tr><td class="codec-name">WavTokenizer (720bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_wavt_640.wav"></audio></td></tr>
-                        <tr><td class="codec-name">DualCodec (750bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_dualcodec_750.wav"></audio></td></tr>
-                        <tr><td class="codec-name">cCodec (640bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_cCodec_640.wav"></audio></td></tr>
+                        <tr>
+                            <td class="codec-name">GroundTruth</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio15"></button>
+                                    <audio id="audio15" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">EnCodec (750bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio16"></button>
+                                    <audio id="audio16" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_encodec_750.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec (700bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio17"></button>
+                                    <audio id="audio17" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_hifi_700.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec (700bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio18"></button>
+                                    <audio id="audio18" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_ticodec_700.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer (720bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio19"></button>
+                                    <audio id="audio19" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_wavt_640.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">DualCodec (750bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio20"></button>
+                                    <audio id="audio20" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_dualcodec_750.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec (640bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio21"></button>
+                                    <audio id="audio21" controls src="https://shaokai1209.github.io/c-Codec/samples/640bps/s3/121_121726_000007_000003_cCodec_640.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -309,13 +528,69 @@
                 <table class="codec-table">
                     <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
                     <tbody>
-                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003.wav"></audio></td></tr>
-                        <tr><td class="codec-name">EnCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_encodec_1500.wav"></audio></td></tr>
-                        <tr><td class="codec-name">HiFiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_hifi_1400.wav"></audio></td></tr>
-                        <tr><td class="codec-name">TiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_ticodec_1400.wav"></audio></td></tr>
-                        <tr><td class="codec-name">WavTokenizer (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_wavt_1200.wav"></audio></td></tr>
-                        <tr><td class="codec-name">DualCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_dualcodec_1500.wav"></audio></td></tr>
-                        <tr><td class="codec-name">cCodec (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_opt_1200bps.wav"></audio></td></tr>
+                        <tr>
+                            <td class="codec-name">GroundTruth</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio22"></button>
+                                    <audio id="audio22" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">EnCodec (1500bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio23"></button>
+                                    <audio id="audio23" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_encodec_1500.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec (1400bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio24"></button>
+                                    <audio id="audio24" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_hifi_1400.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec (1400bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio25"></button>
+                                    <audio id="audio25" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_ticodec_1400.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer (1200bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio26"></button>
+                                    <audio id="audio26" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_wavt_1200.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">DualCodec (1500bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio27"></button>
+                                    <audio id="audio27" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_dualcodec_1500.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec (1200bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio28"></button>
+                                    <audio id="audio28" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s1/121_121726_000004_000003_opt_1200bps.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -326,13 +601,69 @@
                 <table class="codec-table">
                     <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
                     <tbody>
-                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001.wav"></audio></td></tr>
-                        <tr><td class="codec-name">EnCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_encodec_1500.wav"></audio></td></tr>
-                        <tr><td class="codec-name">HiFiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_hifi_1400.wav"></audio></td></tr>
-                        <tr><td class="codec-name">TiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_ticodec_1400.wav"></audio></td></tr>
-                        <tr><td class="codec-name">WavTokenizer (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_wavt_1200.wav"></audio></td></tr>
-                        <tr><td class="codec-name">DualCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_dualcodec_1500.wav"></audio></td></tr>
-                        <tr><td class="codec-name">cCodec (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_opt_1200bps.wav"></audio></td></tr>
+                        <tr>
+                            <td class="codec-name">GroundTruth</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio29"></button>
+                                    <audio id="audio29" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">EnCodec (1500bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio30"></button>
+                                    <audio id="audio30" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_encodec_1500.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec (1400bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio31"></button>
+                                    <audio id="audio31" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_hifi_1400.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec (1400bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio32"></button>
+                                    <audio id="audio32" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_ticodec_1400.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer (1200bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio33"></button>
+                                    <audio id="audio33" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_wavt_1200.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">DualCodec (1500bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio34"></button>
+                                    <audio id="audio34" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_dualcodec_1500.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec (1200bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio35"></button>
+                                    <audio id="audio35" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s2/121_121726_000005_000001_opt_1200bps.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -343,13 +674,69 @@
                 <table class="codec-table">
                     <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
                     <tbody>
-                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003.wav"></audio></td></tr>
-                        <tr><td class="codec-name">EnCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_encodec_1500.wav"></audio></td></tr>
-                        <tr><td class="codec-name">HiFiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_hifi_1400.wav"></audio></td></tr>
-                        <tr><td class="codec-name">TiCodec (1400bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_ticodec_1400.wav"></audio></td></tr>
-                        <tr><td class="codec-name">WavTokenizer (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_wavt_1200.wav"></audio></td></tr>
-                        <tr><td class="codec-name">DualCodec (1500bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_dualcodec_1500.wav"></audio></td></tr>
-                        <tr><td class="codec-name">cCodec (1200bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_opt_1200bps.wav"></audio></td></tr>
+                        <tr>
+                            <td class="codec-name">GroundTruth</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio36"></button>
+                                    <audio id="audio36" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">EnCodec (1500bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio37"></button>
+                                    <audio id="audio37" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_encodec_1500.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec (1400bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio38"></button>
+                                    <audio id="audio38" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_hifi_1400.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec (1400bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio39"></button>
+                                    <audio id="audio39" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_ticodec_1400.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer (1200bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio40"></button>
+                                    <audio id="audio40" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_wavt_1200.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">DualCodec (1500bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio41"></button>
+                                    <audio id="audio41" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_dualcodec_1500.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec (1200bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio42"></button>
+                                    <audio id="audio42" controls src="https://shaokai1209.github.io/c-Codec/samples/1200bps/s3/121_121726_000007_000003_opt_1200bps.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -365,13 +752,69 @@
                 <table class="codec-table">
                     <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
                     <tbody>
-                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003.wav"></audio></td></tr>
-                        <tr><td class="codec-name">EnCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_encodec_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">HiFiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_hifi_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">TiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_ticodec_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">WavTokenizer (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_wavt_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">DualCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_dualcodec_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">cCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_cCodec_3000.wav"></audio></td></tr>
+                        <tr>
+                            <td class="codec-name">GroundTruth</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio43"></button>
+                                    <audio id="audio43" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">EnCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio44"></button>
+                                    <audio id="audio44" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_encodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio45"></button>
+                                    <audio id="audio45" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_hifi_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio46"></button>
+                                    <audio id="audio46" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_ticodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio47"></button>
+                                    <audio id="audio47" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_wavt_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">DualCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio48"></button>
+                                    <audio id="audio48" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_dualcodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio49"></button>
+                                    <audio id="audio49" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s1/121_121726_000004_000003_cCodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -382,13 +825,69 @@
                 <table class="codec-table">
                     <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
                     <tbody>
-                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001.wav"></audio></td></tr>
-                        <tr><td class="codec-name">EnCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_encodec_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">HiFiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_hifi_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">TiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_ticodec_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">WavTokenizer (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_wavt_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">DualCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_dualcodec_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">cCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_cCodec_3000.wav"></audio></td></tr>
+                        <tr>
+                            <td class="codec-name">GroundTruth</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio50"></button>
+                                    <audio id="audio50" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">EnCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio51"></button>
+                                    <audio id="audio51" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_encodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio52"></button>
+                                    <audio id="audio52" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_hifi_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio53"></button>
+                                    <audio id="audio53" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_ticodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio54"></button>
+                                    <audio id="audio54" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_wavt_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">DualCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio55"></button>
+                                    <audio id="audio55" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_dualcodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio56"></button>
+                                    <audio id="audio56" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s2/121_121726_000005_000001_cCodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -399,13 +898,69 @@
                 <table class="codec-table">
                     <thead><tr><th>Codec Type</th><th>Playback</th></tr></thead>
                     <tbody>
-                        <tr><td class="codec-name">GroundTruth</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003.wav"></audio></td></tr>
-                        <tr><td class="codec-name">EnCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_encodec_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">HiFiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_hifi_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">TiCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_ticodec_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">WavTokenizer (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_wavt_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">DualCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_dualcodec_3000.wav"></audio></td></tr>
-                        <tr><td class="codec-name">cCodec (3000bps)</td><td><audio controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_cCodec_3000.wav"></audio></td></tr>
+                        <tr>
+                            <td class="codec-name">GroundTruth</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio57"></button>
+                                    <audio id="audio57" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">EnCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio58"></button>
+                                    <audio id="audio58" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_encodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">HiFiCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio59"></button>
+                                    <audio id="audio59" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_hifi_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">TiCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio60"></button>
+                                    <audio id="audio60" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_ticodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">WavTokenizer (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio61"></button>
+                                    <audio id="audio61" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_wavt_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">DualCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio62"></button>
+                                    <audio id="audio62" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_dualcodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="codec-name">cCodec (3000bps)</td>
+                            <td>
+                                <div class="audio-container">
+                                    <button class="custom-play-btn paused" data-audio="audio63"></button>
+                                    <audio id="audio63" controls src="https://shaokai1209.github.io/c-Codec/samples/3000bps/s3/121_121726_000007_000003_cCodec_3000.wav"></audio>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -415,5 +970,56 @@
             ⚡ cCodec · Very Low-Bitrate Speech Coding · 2026
         </div>
     </div>
+
+    <!-- 控制播放/暂停状态的 JavaScript -->
+    <script>
+        // 等待页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有自定义播放按钮
+            const playButtons = document.querySelectorAll('.custom-play-btn');
+            
+            // 为每个按钮添加点击事件
+            playButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 获取对应的音频元素ID
+                    const audioId = this.getAttribute('data-audio');
+                    const audio = document.getElementById(audioId);
+                    
+                    // 切换播放/暂停状态
+                    if (audio.paused) {
+                        audio.play();
+                        this.classList.remove('paused');
+                        this.classList.add('playing');
+                    } else {
+                        audio.pause();
+                        this.classList.remove('playing');
+                        this.classList.add('paused');
+                    }
+                });
+                
+                // 监听音频播放结束事件，重置按钮状态
+                const audioId = button.getAttribute('data-audio');
+                const audio = document.getElementById(audioId);
+                
+                audio.addEventListener('ended', function() {
+                    button.classList.remove('playing');
+                    button.classList.add('paused');
+                });
+                
+                // 监听音频暂停事件（比如用户拖动进度条到末尾）
+                audio.addEventListener('pause', function() {
+                    if (audio.currentTime === audio.duration) return;
+                    button.classList.remove('playing');
+                    button.classList.add('paused');
+                });
+                
+                // 监听音频播放事件
+                audio.addEventListener('play', function() {
+                    button.classList.remove('paused');
+                    button.classList.add('playing');
+                });
+            });
+        });
+    </script>
 </body>
 </html>
